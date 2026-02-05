@@ -1,7 +1,20 @@
-// Cloudflare Workers - 网盘解析
+// Cloudflare Workers - 网盘解析器
 // 支持: 小飞机网盘(feijipan.com) | 蓝奏云优享版(ilanzou.com) | 蓝奏云(lanzou*.com)
 
-// ============================== AES-128-ECB ==============================
+// ============================== 配置 ==============================
+const CONFIG = {
+    cache: false,          // 文件链接缓存 (Workers KV 可用时启用)
+    cacheexpired: 2000,   // 缓存时间（秒）
+    foldercache: false,   // 缓存文件夹参数
+
+    // 缓存功能暂未实现KV绑定
+
+    "auto-switch": true,  // 自动切换获取方式 (pc/mobile)
+    mode: "pc",           // 默认请求方式 (pc/mobile)
+    "redirect-url": false  // 重定向下载(单文件)：true=302重定向，false=返回JSON
+};
+
+// ============================== AES-128-ECB工具 ==============================
 class AES128ECB {
     constructor(key) {
         const encoder = new TextEncoder();
@@ -543,7 +556,8 @@ class LanzouParser {
         this.mobileUA = 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Mobile Safari/537.36';
         this.desktopUA = 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36';
         this.apiDomain = 'www.lanzoui.com';
-        this.autoSwitch = true;
+        this.autoSwitch = CONFIG["auto-switch"];
+        this.mode = CONFIG.mode;
     }
 
     async parse(url, pwd = '') {
@@ -553,10 +567,17 @@ class LanzouParser {
                 return { code: 400, msg: '无效的分享链接', data: null };
             }
 
-            let result = await this.pcMode(id, pwd);
-            
-            if (this.autoSwitch && result.code !== 200 && result.code !== 401) {
+            let result;
+            if (this.mode === "mobile") {
                 result = await this.mobileMode(id, pwd);
+                if (this.autoSwitch && result.code !== 200 && result.code !== 401) {
+                    result = await this.pcMode(id, pwd);
+                }
+            } else {
+                result = await this.pcMode(id, pwd);
+                if (this.autoSwitch && result.code !== 200 && result.code !== 401) {
+                    result = await this.mobileMode(id, pwd);
+                }
             }
 
             return result;
@@ -924,7 +945,8 @@ class LanzouParser {
         }
         
         const websignMatch = cleanedData.match(/'([0-9])'/);
-        const websign = websignMatch ? websignMatch[1] : "";        
+        const websign = websignMatch ? websignMatch[1] : "";
+        
         const websignkeyMatch = cleanedData.match(/'([a-zA-Z0-9]{4})'/);
         const websignkey = websignkeyMatch ? websignkeyMatch[1] : "";
         
@@ -1020,7 +1042,6 @@ class LanzouParser {
             }
         }
         
-        // 设置过期时间
         const timestamp = Date.now();
         const expiresTimestamp = timestamp + (24 * 60 * 60 * 1000);
         const expiresDate = new Date(expiresTimestamp).toISOString().replace('T', ' ').split('.')[0];
@@ -1265,29 +1286,83 @@ class LanzouParser {
     }
 }
 
-// ============================== 主程序 ==============================
+// ============================== 处理响应 ==============================
+
+
+function handleResponse(result, type, configRedirect) {
+    // 是否使用302重定向
+    let shouldRedirect = false;
+    
+    if (type === 'down') {
+        shouldRedirect = true;
+    } else if (type === 'json') {
+        shouldRedirect = false;
+    } else {
+        shouldRedirect = configRedirect;
+    }
+    
+    // 检查是否可以重定向
+    const canRedirect = result.code === 200 && 
+                       result.data && 
+                       result.data.download_url && 
+                       !result.data.is_folder &&
+                       !result.data.list; // 不是文件夹列表
+    
+    if (shouldRedirect && canRedirect) {
+        return new Response(null, {
+            status: 302,
+            headers: {
+                'Location': result.data.download_url,
+                'Access-Control-Allow-Origin': '*',
+                'Cache-Control': 'no-cache'
+            }
+        });
+    }
+    
+    const corsHeaders = {
+        'Content-Type': 'application/json; charset=utf-8',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With'
+    };
+    
+    return new Response(JSON.stringify(result, null, 2), {
+        headers: corsHeaders
+    });
+}
+
+// ============================== 主入口 ==============================
 export default {
     async fetch(request, env, ctx) {
         const url = new URL(request.url);
         
-        // CORS 头
-        const corsHeaders = {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-            'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With',
-            'Content-Type': 'application/json; charset=utf-8'
-        };
-
+        // CORS 预检
         if (request.method === 'OPTIONS') {
-            return new Response(null, { 
-                status: 204, 
-                headers: corsHeaders 
+            return new Response(null, {
+                status: 204,
+                headers: {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Methods': 'GET, POST, HEAD, OPTIONS',
+                    'Access-Control-Allow-Headers': '*',
+                    'Access-Control-Max-Age': '2592000',
+                    'Allow': 'GET, POST, HEAD'
+                }
+            });
+        }
+        
+        if (!['GET', 'POST', 'HEAD'].includes(request.method)) {
+            return new Response("Method Not Allowed", {
+                status: 405,
+                headers: { 'Access-Control-Allow-Origin': '*' }
             });
         }
 
+        // 获取参数
         const targetUrl = url.searchParams.get('url');
         const pwd = url.searchParams.get('pwd') || '';
+        const type = url.searchParams.get('type') || '';
 
+        // 参数检查
         if (!targetUrl) {
             return new Response(
                 JSON.stringify({ 
@@ -1296,13 +1371,20 @@ export default {
                     success: false,
                     data: null 
                 }, null, 2),
-                { status: 400, headers: corsHeaders }
+                { 
+                    status: 400, 
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': '*'
+                    } 
+                }
             );
         }
 
         let result;
 
         try {
+            // 路由到对应的解析器
             if (/feijipan\.com/i.test(targetUrl)) {
                 const parser = new FeijipanParser({});
                 const shareKey = parser.extractShareKey(targetUrl);
@@ -1349,10 +1431,6 @@ export default {
                 data: null 
             };
         }
-
-        return new Response(
-            JSON.stringify(result, null, 2),
-            { headers: corsHeaders }
-        );
+        return handleResponse(result, type, CONFIG["redirect-url"]);
     }
 };
