@@ -105,18 +105,6 @@ GET your-domain.dev/?url={分享链接}&pwd={密码}&type=down
 - 目前缓存功能还未实现储存KV空间，请勿开启cache功能
 - 目前该项目仅支持单个文件的解析，暂未实现文件夹解析功能
 
-### 演示站示例
-
-```bash
-# 302 跳转（通用接口 - 有密码）
-https://jx.fsapk.xx.kg/?url=https%3A%2F%2Fwww.ilanzou.com%2Fs%2FlGFndCM&pwd=KMnv&type=down
-
-
-# 获取 JSON（通用接口 - 无密码）
-https://jx.fsapk.xx.kg/?url=https%3A%2F%2Fwww.ilanzou.com%2Fs%2FLEBZySxF&type=json
-
----
-
 ---
 
 ## ⚠️ 免责声明
