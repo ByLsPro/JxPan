@@ -8,7 +8,7 @@
 
 **JxPan** 是一个基于 Cloudflare Workers 平台的网盘直链解析工具。它能够解析主流网盘分享链接，提取文件真实下载地址，并通过 JSON 格式输出或 302 重定向直接下载，有效绕过网盘客户端限制。
 
-- 🖥️ **Demo 演示站点**：[https://jx.fsapk.xx.kg](https://jx.fsapk.xx.kg)
+- 🖥️ **Demo 演示站点**：[https://jx.fsapk.xx.kg](https://jx.fsapk.xx.kg) *(请替换为您的实际地址)*
 
 ### ✨ 核心特性
 
