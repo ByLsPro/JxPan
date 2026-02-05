@@ -2,6 +2,10 @@
 [![Forks](https://img.shields.io/github/forks/ByLsPro/JxPan?style=flat-square&logo=github)](https://github.com/ByLsPro/JxPan/network/members)
 [![License](https://img.shields.io/github/license/ByLsPro/JxPan?style=flat-square)](https://github.com/ByLsPro/JxPan/blob/main/LICENSE)
 
+## ⭐ 项目热度
+
+[![Stargazers over time](https://starchart.cc/ByLsPro/JxPan.svg?variant=adaptive)](https://starchart.cc/ByLsPro/JxPan)
+
 ---
 
 ## 📖 项目简介
@@ -110,3 +114,19 @@ https://jx.fsapk.xx.kg/?url=https%3A%2F%2Fwww.ilanzou.com%2Fs%2FlGFndCM&pwd=KMnv
 
 # 获取 JSON（通用接口 - 无密码）
 https://jx.fsapk.xx.kg/?url=https%3A%2F%2Fwww.ilanzou.com%2Fs%2FLEBZySxF&type=json
+
+---
+
+## ⚠️ 免责声明
+
+1. **本项目仅供学习研究使用**，旨在探索网盘分享链接的解析原理及边缘计算技术应用。
+2. 使用本项目获取的下载链接，请严格遵守各网盘平台的服务条款及相关法律法规。
+3. **严禁**将本项目用于以下行为：
+   - 大规模自动化爬取、转存或分发网盘资源
+   - 破解、绕过网盘平台的付费功能或访问限制
+   - 传播盗版、侵权或违法违规内容
+4. 作者 **ByLsPro** 不对因使用本项目导致的任何法律纠纷、账号封禁或数据损失承担责任。
+5. 如因网盘平台政策调整或反爬升级导致功能失效，本项目可能随时停止维护，敬请谅解。
+6. 下载的文件请在 24 小时内删除，不得用于商业用途或二次传播。
+
+---
