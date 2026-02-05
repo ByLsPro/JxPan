@@ -117,6 +117,8 @@ https://jx.fsapk.xx.kg/?url=https%3A%2F%2Fwww.ilanzou.com%2Fs%2FLEBZySxF&type=js
 
 ---
 
+---
+
 ## ⚠️ 免责声明
 
 1. **本项目仅供学习研究使用**，旨在探索网盘分享链接的解析原理及边缘计算技术应用。
@@ -128,5 +130,7 @@ https://jx.fsapk.xx.kg/?url=https%3A%2F%2Fwww.ilanzou.com%2Fs%2FLEBZySxF&type=js
 4. 作者 **ByLsPro** 不对因使用本项目导致的任何法律纠纷、账号封禁或数据损失承担责任。
 5. 如因网盘平台政策调整或反爬升级导致功能失效，本项目可能随时停止维护，敬请谅解。
 6. 下载的文件请在 24 小时内删除，不得用于商业用途或二次传播。
+
+---
 
 ---
