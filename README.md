@@ -1,14 +1,3 @@
-[![Stars](https://img.shields.io/github/stars/ByLsPro/JxPan?style=flat-square&logo=github)](https://github.com/ByLsPro/JxPan/stargazers)
-[![Forks](https://img.shields.io/github/forks/ByLsPro/JxPan?style=flat-square&logo=github)](https://github.com/ByLsPro/JxPan/network/members)
-[![License](https://img.shields.io/github/license/ByLsPro/JxPan?style=flat-square)](https://github.com/ByLsPro/JxPan/blob/main/LICENSE)
-
-## ⭐ 项目热度
-
-[![Star History Chart](https://api.star-history.com/chart?repos=ByLsPro/JxPan&type=timeline&legend=top-left)](https://www.star-history.com/?repos=ByLsPro%2FJxPan&type=timeline&legend=top-left)
-
-
-***
-
 ## 📖 项目简介
 
 **JxPan** 是一个基于 Cloudflare Workers 平台的网盘直链解析工具。它能够解析主流网盘分享链接，提取文件真实下载地址，并通过 JSON 格式输出或 302 重定向直接下载，有效绕过网盘客户端限制。
@@ -23,7 +12,7 @@
 - 🛡️ **边缘计算**：基于 Cloudflare Workers 平台，避免 IP 封禁
 - ⚡ **高速稳定**：利用 CF 全球网络，解析速度快、可用性高
 - 🌍 **全球访问**：自动选择最优节点，无视地域限制
-- 📊 **统计功能**：记录解析次数、成功/失败次数、缓存命中次数
+- 📊 **统计功能**：记录解析次数、成功/失败次数
 - 💾 **D1 数据库存储**：使用 Cloudflare D1 SQL 数据库存储数据
 - 🔐 **数据加密**：所有敏感数据 AES 加密存储
 
@@ -66,7 +55,7 @@
 
 #### 3. 配置 D1 数据库（必需）
 
-本项目使用 **Cloudflare D1 SQL 数据库** 存储数据（缓存、统计、扫码登录信息等）
+本项目使用 **Cloudflare D1 SQL 数据库** 存储数据（扫码登录信息、统计数据等）。
 
 1. 在 Cloudflare Dashboard 中，进入 **"储存和数据库" → "D1 SQL 数据库"**
 2. 点击 **"创建数据库"**，输入名称 `jxpan`
@@ -77,20 +66,7 @@
 
 > D1 数据库表会在首次请求时自动创建，无需手动执行 SQL。
 
-#### 4. 配置 KV 存储（可选，作为回退）
-
-如果需要兼容旧版本或作为 D1 的回退方案：
-
-1. 在 Cloudflare Dashboard 中，进入 **"储存与数据库" → "Workers KV"**
-2. 点击 **"创建命名空间"**，输入名称 `jx`
-3. 回到 Worker 页面，点击 **"设置" → "绑定"**
-4. 点击 **"添加绑定" → 选择 "KV 命名空间"**
-5. 变量名称填写 `jx`，选择刚刚创建的命名空间
-6. 点击 **"添加绑定"**
-
-> 系统优先使用 D1 数据库，KV 作为回退方案。
-
-#### 5. 配置环境变量（可选）
+#### 4. 配置环境变量（可选）
 
 对于需要认证的网盘，可以配置以下环境变量：
 
@@ -111,13 +87,13 @@
 
 > **推荐**：通过后台管理面板 `/admin` 的扫码登录功能配置，无需手动填写环境变量。
 
-#### 6. 绑定自定义域（推荐）
+#### 5. 绑定自定义域（推荐）
 
 1. 在 **"触发器"** 选项卡点击 **"添加自定义域"**
 2. 输入您的域名（如 `pan.yourdomain.com`），点击 **"添加自定义域"**
 3. 按提示完成 DNS 解析，等待证书生效
 
-#### 7. 配置后台管理面板（可选）
+#### 6. 配置后台管理面板（可选）
 
 为了启用后台管理面板，需要配置以下环境变量：
 
@@ -128,7 +104,7 @@
 
 配置方法同上。
 
-#### 8. 访问测试
+#### 7. 访问测试
 
 - 访问 `https://your-domain.com/` 查看使用说明
 - 访问 `https://your-domain.com/?url=分享链接` 进行解析测试
@@ -142,14 +118,13 @@
 
 ### 支持扫码登录的平台
 
-| 平台    | 登录方式         | 存储位置    |
-| ----- | ------------ | ------- |
-| 阿里云盘  | 阿里云盘 APP 扫码  | D1 / KV |
-| 天翼云盘  | 天翼云盘 APP 扫码  | D1 / KV |
-| 光鸭云盘  | 手机号+验证码      | D1 / KV |
-| 夸克网盘  | 夸克 APP 扫码    | D1 / KV |
-| UC网盘  | UC APP 扫码    | D1 / KV |
-| 小飞机网盘 | 小飞机网盘 APP 扫码 | D1 / KV |
+| 平台    | 登录方式         | 存储位置   |
+| ----- | ------------ | ------ |
+| 阿里云盘  | 阿里云盘 APP 扫码  | D1     |
+| 天翼云盘  | 天翼云盘 APP 扫码  | D1     |
+| 光鸭云盘  | 手机号+验证码      | D1     |
+| 夸克网盘  | 夸克 APP 扫码    | D1     |
+| UC网盘  | UC APP 扫码    | D1     |
 
 ### 使用方式
 
@@ -577,10 +552,9 @@ https://jx.fsapk.xx.kg/?url=https://share.feijipan.com/s/jgBISyJG&fid=47096870&f
 
 ### 存储绑定配置
 
-| 绑定名称    | 类型 | 说明                          | 必需     |
-| ------- | -- | --------------------------- | ------ |
-| `jxpan` | D1 | D1 SQL 数据库，用于存储缓存、统计数据、登录信息 | **必需** |
-| `jx`    | KV | KV 命名空间，作为 D1 的回退存储方案       | 可选     |
+| 绑定名称    | 类型 | 说明                       | 必需     |
+| ------- | -- | ------------------------ | ------ |
+| `jxpan` | D1 | D1 SQL 数据库，用于存储统计数据、登录信息 | **必需** |
 
 ### 认证信息获取方法
 
@@ -725,13 +699,7 @@ curl "https://your-domain.com/?url=https://www.guangyapan.com/s/xxxxxx&type=down
 │ 网盘  ││  │ Cloudflare │
 │ API   ││  │    D1      │  ← 主存储（SQL数据库）
 └───────┘│  │   (jxpan)  │
-         │  └────┬─────┘
-         │       │ (回退)
-    ┌────▼───────▼─┐
-    │ Cloudflare    │  ← 可选回退存储
-    │    KV (jx)    │
-    └──────────────┘
-         │
+         │  └───────────┘
     ┌────▼────┐
     │ 网盘 OSS │
     └─────────┘
@@ -740,7 +708,6 @@ curl "https://your-domain.com/?url=https://www.guangyapan.com/s/xxxxxx&type=down
 ### 核心模块
 
 - **D1 Database Layer** - D1 SQL 数据库访问层，支持加密存储、过期清理
-- **Storage Compatibility Layer** - 存储兼容层，优先 D1，自动回退 KV
 - **CookieManager** - Cookie 缓存管理，支持有效期检测
 - **AliyunPanParser** - 阿里云盘解析器（含扫码登录 + JWT token 刷新）
 - **QuarkParser** - 夸克网盘解析器（含扫码登录）
@@ -752,7 +719,7 @@ curl "https://your-domain.com/?url=https://www.guangyapan.com/s/xxxxxx&type=down
 - **LanzouParser** - 蓝奏云解析器
 - **GuangyaPanParser** - 光鸭云盘解析器（含扫码登录）
 - **AES128ECB Encryption** - AES-128-ECB 加密工具，保护敏感数据
-- **Cache Mechanism** - 缓存解析结果，提高响应速度
+- **Cache Mechanism** - 前端内存缓存机制，提高响应速度
 - **Statistics** - 记录和提供解析统计数据
 - **Admin Panel** - 后台管理面板，查看解析记录、统计数据、登录配置详情
 - **Authentication** - 后台登录认证系统
@@ -775,7 +742,6 @@ CREATE INDEX idx_kv_expires ON kv_store(expires_at);  -- 过期索引，便于�
 | Key 前缀                 | 用途                     | 过期时间   |
 | ---------------------- | ---------------------- | ------ |
 | `jx_total`             | 解析统计数据                 | 永久     |
-| `parse_`               | 解析结果缓存                 | 可配置    |
 | `parse_record_`        | 解析记录                   | 7天     |
 | `aliyun_login_default` | 阿里云盘扫码登录 Authorization | 1天     |
 | `aliyun_refresh_token` | 阿里云盘 Refresh Token     | 30天    |
@@ -784,6 +750,7 @@ CREATE INDEX idx_kv_expires ON kv_store(expires_at);  -- 过期索引，便于�
 | `uc_login_default`     | UC网盘登录 Cookie          | 永久     |
 | `mcloud_login_default` | 移动云盘登录信息               | 永久     |
 | `c189_login_default`   | 天翼云盘登录信息               | 永久     |
+| `feiji_tran_login`     | 小飞机网盘转存登录信息            | 永久     |
 | `admin_token`          | 后台管理员 Token            | 7天     |
 | `gy_qr_` / `uc_qr_` 等  | 扫码登录临时会话数据             | 5-10分钟 |
 
@@ -812,8 +779,6 @@ CREATE INDEX idx_kv_expires ON kv_store(expires_at);  -- 过期索引，便于�
 ## 📄 许可证
 
 本项目基于 [MIT License](LICENSE) 开源。
-
-
 
 ## 📞 联系方式
 
