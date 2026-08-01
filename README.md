@@ -27,13 +27,15 @@
 | UC网盘   | drive.uc.cn / fast.uc.cn     | ✅ 已支持 | ✅ 支持  |
 | 移动云盘   | yun.139.com / caiyun.139.com | ✅ 已支持 | ❌ 不支持 |
 | 天翼云盘   | cloud.189.cn                 | ✅ 已支持 | ✅ 支持  |
+| 123云盘  | 123pan.cn                    | ✅ 已支持 | ❌ 不支持 |
 | 小飞机网盘  | feijipan.com                 | ✅ 已支持 | -     |
 | 蓝奏云优享版 | ilanzou.com                  | ✅ 已支持 | -     |
 | 蓝奏云    | lanzou\*.com                 | ✅ 已支持 | -     |
 | 光鸭云盘   | guangyapan.com               | ✅ 已支持 | ✅ 支持  |
 
 > **注意**：\
-> 阿里云盘、夸克网盘、UC网盘、移动云盘、天翼云盘、光鸭云盘需要配置认证信息才能正常解析。推荐使用后台管理面板的扫码登录功能快速配置。\
+> 阿里云盘、夸克网盘、UC网盘、移动云盘、天翼云盘、光鸭云盘、123云盘需要配置认证信息才能正常解析。推荐使用后台管理面板的扫码登录功能快速配置。\
+> *123云盘需要配置 Token 才能下载文件（免费用户每日有10G下载流量）*\
 > *小飞机网盘需要配置账号信息才能解析大文件（＞500MB）*
 
 ***
@@ -77,6 +79,7 @@
 | `UC_COOKIE`            | UC网盘的 Cookie              | UC网盘 |
 | `MCLOUD_AUTHORIZATION` | 移动云盘的 Authorization Token | 移动云盘 |
 | `CLOUD189_TOKEN`       | 天翼云盘的 AccessToken         | 天翼云盘 |
+| `PAN123_TOKEN`         | 123云盘的 Authorization Token | 123云盘 |
 | `GY_Login`             | 光鸭云盘的登录信息 JSON            | 光鸭云盘 |
 
 配置方法：
@@ -125,6 +128,7 @@
 | 光鸭云盘  | 手机号+验证码      | D1     |
 | 夸克网盘  | 夸克 APP 扫码    | D1     |
 | UC网盘  | UC APP 扫码    | D1     |
+| 123云盘 | 手动输入 Token   | D1     |
 
 ### 使用方式
 
@@ -145,6 +149,7 @@
 - **UC网盘**：Cookie 手动输入
 - **移动云盘**：Authorization + Cookie 手动输入
 - **天翼云盘**：AccessToken 手动输入
+- **123云盘**：Token 手动输入
 - **光鸭云盘**：登录信息 JSON 手动输入
 
 配置优先级：**扫码登录（容易失效） > 前端手动输入 > 环境变量（兜底）**
@@ -541,6 +546,8 @@ https://jx.fsapk.xx.kg/?url=https://share.feijipan.com/s/jgBISyJG&fid=47096870&f
 | `GY_ENABLED`           | true  | 是否启用光鸭云盘解析               |
 | `GY_Login`             | -     | 光鸭云盘登录信息 JSON            |
 | `GY_USER_AGENT`        | -     | 光鸭云盘自定义 UA               |
+| `PAN123_ENABLED`       | true  | 是否启用123云盘解析              |
+| `PAN123_TOKEN`         | -     | 123云盘 Authorization Token |
 | `AUTO_SWITCH`          | true  | 自动切换平台 UA                |
 | `MODE`                 | pc    | 解析模式                     |
 | `REDIRECT_URL`         | false | 是否默认使用 302 重定向           |
@@ -610,6 +617,16 @@ https://jx.fsapk.xx.kg/?url=https://share.feijipan.com/s/jgBISyJG&fid=47096870&f
 1. 运行项目中的 `阿里云盘扫码登录.py` 脚本（手机号+验证码登录）
 2. 或在后台管理面板中使用扫码登录功能
 3. 将生成的 JSON 登录信息配置到 `GY_Login` 环境变量中
+
+##### 123云盘
+
+1. 访问 <https://www.123pan.cn> 并登录
+2. 按 F12 打开开发者工具 → Network
+3. 刷新页面，找到任意 `/api/user/sign_in` 的请求
+4. 复制请求头中的 `cokie` 字段值（如：sso-token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...........）
+5. 在后台管理面板 `/admin` → 扫码登录 → 123云盘卡片中粘贴保存
+
+> **说明**：123云盘的 Token 是 JWT 格式，有效期约90天。免费用户每日有10G下载流量，配置 Token 后即可正常解析下载。
 
 ***
 
@@ -682,6 +699,18 @@ curl "https://your-domain.com/?url=https://www.guangyapan.com/s/xxxxxx&type=json
 curl "https://your-domain.com/?url=https://www.guangyapan.com/s/xxxxxx&type=down"
 ```
 
+### 123云盘
+
+```bash
+# JSON 返回
+curl "https://your-domain.com/?url=https://www.123pan.cn/s/xxxxxx?pwd=xxxx&type=json"
+
+# 302 重定向下载
+curl "https://your-domain.com/?url=https://www.123pan.cn/s/xxxxxx?pwd=xxxx&type=down"
+```
+
+> **注意**：123云盘解析需要在后台管理面板配置 Token，否则会提示"您需要注册登录或付费后下载"。
+
 ***
 
 ## 🔧 技术架构
@@ -714,6 +743,7 @@ curl "https://your-domain.com/?url=https://www.guangyapan.com/s/xxxxxx&type=down
 - **UCParser** - UC网盘解析器（含扫码登录）
 - **MobileCloudParser** - 移动云盘解析器（含扫码登录）
 - **Cloud189Parser** - 天翼云盘解析器（含扫码登录）
+- **Pan123Parser** - 123云盘解析器（Token 认证下载）
 - **FeijipanParser** - 小飞机网盘解析器
 - **IlanzouParser** - 蓝奏云优享版解析器
 - **LanzouParser** - 蓝奏云解析器
@@ -723,7 +753,7 @@ curl "https://your-domain.com/?url=https://www.guangyapan.com/s/xxxxxx&type=down
 - **Statistics** - 记录和提供解析统计数据
 - **Admin Panel** - 后台管理面板，查看解析记录、统计数据、登录配置详情
 - **Authentication** - 后台登录认证系统
-- **QR Code Login** - 多网盘扫码登录系统（阿里云盘/天翼云盘/夸克/UC/移动云盘/光鸭云盘）
+- **QR Code Login** - 多网盘扫码登录系统（阿里云盘/天翼云盘/夸克/UC/移动云盘/光鸭云盘/123云盘）
 
 ### 数据库表结构 (D1)
 
@@ -750,6 +780,7 @@ CREATE INDEX idx_kv_expires ON kv_store(expires_at);  -- 过期索引，便于�
 | `uc_login_default`     | UC网盘登录 Cookie          | 永久     |
 | `mcloud_login_default` | 移动云盘登录信息               | 永久     |
 | `c189_login_default`   | 天翼云盘登录信息               | 永久     |
+| `pan123_login_default` | 123云盘 Authorization Token | 7天     |
 | `feiji_tran_login`     | 小飞机网盘转存登录信息            | 永久     |
 | `admin_token`          | 后台管理员 Token            | 7天     |
 | `gy_qr_` / `uc_qr_` 等  | 扫码登录临时会话数据             | 5-10分钟 |
